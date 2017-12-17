@@ -1,0 +1,44 @@
+main {
+	margin: 20px;
+	padding: 20px;
+	height: 600px;
+	width: 1000px;
+	background-color: grey;
+}
+
+ol li {
+	display: inline;
+	padding: 20px;
+}
+
+.question-prompt, .time-display, .submit-btn, .answer-list {
+	display: inline-block;
+	box-sizing: border-box;
+	outline: 1px dashed black;
+}
+.question-box {
+	margin: 20px 0;
+	padding: 20px;
+	height: 100px;
+	width: 800px;
+	outline: 1px solid rgb(0,0,0);
+}
+.question-prompt {
+	height: 40px;
+	width: 500px;
+}
+.time-display {
+	float: right;
+	height: 40px;
+}
+.btn {
+	height: 40px;
+	width: 40px;
+}
+.submit-btn {
+	float: right;
+}
+.answer-list {
+	height: 40px;
+	width: 500px;
+}
