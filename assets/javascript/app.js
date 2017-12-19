@@ -61,24 +61,12 @@ var TriviaGame = {
 		var newQuestionBox 			= $('<div>').addClass('question-box');
 		var questionSlot 			= $('<div>').addClass('question-prompt').text(this.questions[this.questionCounter].question);
 		var timeSlot 				= $('<div>').addClass('time-display');
-		var submitButton			= $('<button>').addClass('btn btn-submit');
-		var answerList 				= $('<ol>');
+		var submitButton			= $('<button>').addClass('btn btn-submit').text('submit');
+		var answerList 				= $('<ol>').attr('answer-selected', 'no');
 
 		answerList.addClass('answer-list').attr('type', 'a').attr('question-number',this.questionCounter);
 
-		// //Add the needed number of li elements
-		// for (var i=0; i < numAnswers; i++) {
-		// 	answerList.append($('<li>'));
-		// }
-		
-		// for (i = 0; i < numAnswers; i++) {
-		// 	answerList
-		// 		.children().append('<button>')
-		// 		.children().attr('active-answer','yes').attr('current-selection','no');
-		// 	this.answerIndexCounter++;
-		// }
-
-		// //Create attributes to reference element based on which button is selected by user
+		//Create attributes to reference element based on which button is selected by user
 		var AnswerListItems = '';
 		for (i = 0; i < numAnswers; i++) {
 			AnswerListItems += '<li><button class="btn btn-answer" answer-index='+this.answerIndexCounter+' active-answer="yes" current-selection="no"></button></li>';
@@ -97,10 +85,10 @@ var TriviaGame = {
 
 		//Add event handlers for when selecting answers
 		$('.btn-answer').focus(function() {
-			$(this).attr('current-selection', 'yes');
+			$('ol[question-number='+questionCounter+']').attr('answer-selected', 'yes');
 		});
 		$('.btn-answer').focusout(function() {
-			$(this).attr('current-selection', 'no');
+			$('ol[question-number='+questionCounter+']').attr('answer-selected', 'no');
 		});
 	},
 
@@ -124,6 +112,9 @@ var TriviaGame = {
 	      t = "0" + t;
 	    }
 	    return t;
+	},
+	submitAnswer: function() {
+
 	},
 	answerCorrectly: function(){
 		correctAnswers++;
