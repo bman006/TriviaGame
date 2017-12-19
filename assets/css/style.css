@@ -3,7 +3,7 @@ main {
 	padding: 20px;
 	height: 600px;
 	width: 1000px;
-	background-color: grey;
+	background-color: #d6d6b1;
 }
 
 ol li {
@@ -34,9 +34,31 @@ ol li {
 .btn {
 	height: 40px;
 	width: 40px;
+	padding: 0 10px;
+	background-color: rgb(0,0,0);
+	color: rgb(255,255,255);
+	border-radius: 	5px;
+	box-shadow: 2px 2px #888888;
+	outline: none;
 }
-.submit-btn {
+.btn-submit {
 	float: right;
+}
+.btn-answer {
+		width: auto	;
+}
+.btn-answer:active {
+	box-shadow: 0 0;
+	position: relative;
+	left: 2px;
+	top: 2px;
+}
+.btn-answer:focus {
+	background-color: 	red;
+	box-shadow: 0 0;
+	position: relative;
+	left: 2px;
+	top: 2px;
 }
 .answer-list {
 	height: 40px;
