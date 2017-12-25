@@ -11,9 +11,9 @@ var TriviaGame = {
 	//Store question and answer information
 	questions: [
 		{
-			question: "first question",
-			correctAnswer: 'correct', 
-			wrongAnswer: ['wrong 1', 'wrong 2',	'wrong 3']
+			question: "Who was given the title &quot;Full Metal&quot; in the anime series &quot;Full Metal Alchemist&quot;?",
+			correctAnswer: "Edward Elric", 
+			wrongAnswer: ["Alphonse Elric", "Van Hohenheim", "Izumi Curtis"]
 		},
 		{
 			question: "second question",
@@ -85,10 +85,10 @@ var TriviaGame = {
 
 		//Add event handlers for when selecting answers
 		$('.btn-answer').focus(function() {
-			$('ol[question-number='+questionCounter+']').attr('answer-selected', 'yes');
+			$('ol[question-number='+TriviaGame.questionCounter+']').attr('answer-selected', 'yes');
 		});
 		$('.btn-answer').focusout(function() {
-			$('ol[question-number='+questionCounter+']').attr('answer-selected', 'no');
+			$('ol[question-number='+TriviaGame.questionCounter+']').attr('answer-selected', 'no');
 		});
 	},
 

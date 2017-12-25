@@ -19,7 +19,7 @@ ol li {
 .question-box {
 	margin: 20px 0;
 	padding: 20px;
-	height: 100px;
+	height: 280px;
 	width: 800px;
 	outline: 1px solid rgb(0,0,0);
 }
@@ -46,6 +46,8 @@ ol li {
 }
 .btn-answer {
 		width: auto	;
+		display: block;
+		margin-left: 20px;
 }
 .btn-answer:active {
 	box-shadow: 0 0;
@@ -55,6 +57,7 @@ ol li {
 }
 .btn-answer:focus {
 	background-color: 	red;
+	color: rgb(0,0,0);
 	box-shadow: 0 0;
 	position: relative;
 	left: 2px;
