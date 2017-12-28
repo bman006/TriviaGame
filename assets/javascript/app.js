@@ -61,7 +61,7 @@ var TriviaGame = {
 		//Create element structure
 		var newQuestionBox 			= $('<div>').addClass('question-box');
 		var questionSlot 			= $('<div>').addClass('question-prompt').text(this.questions[this.questionCounter].question);
-		var timeSlot 				= $('<div>').addClass('time-display');
+		var timeSlot 				= $('<div>').addClass('time-display').attr('question-number',this.questionCounter);
 		var answerList 				= $('<ol>').attr('answer-selected', 'no');
 
 		answerList.addClass('answer-list').attr('type', 'a').attr('question-number',this.questionCounter);
@@ -96,7 +96,7 @@ var TriviaGame = {
 
 	runTimer: function() {
 		var obj = this;
-		var timerDisplay = $('div.time-display');
+		var timerDisplay = $('div.time-display[question-number='+this.questionCounter+']');
 		var timeLeft = this.timePerQuestion;
 		var intervalId = setInterval(function(){
 			if (timeLeft >= 0) {
