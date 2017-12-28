@@ -11,7 +11,7 @@ ol li {
 	padding: 20px;
 }
 
-.question-prompt, .time-display, .submit-btn, .answer-list {
+.question-prompt, .time-display, .answer-list {
 	display: inline-block;
 	box-sizing: border-box;
 	outline: 1px dashed black;
@@ -20,7 +20,7 @@ ol li {
 	margin: 20px 0;
 	padding: 20px;
 	height: 280px;
-	width: 800px;
+	width: 650px;
 	outline: 1px solid rgb(0,0,0);
 }
 .question-prompt {
@@ -28,8 +28,15 @@ ol li {
 	width: 500px;
 }
 .time-display {
+	position: relative;
+	top:50%;
 	float: right;
 	height: 40px;
+	text-align: center;
+}
+.answer-list {
+	height: 250px;
+	width: 500px;
 }
 .btn {
 	height: 40px;
@@ -41,29 +48,22 @@ ol li {
 	box-shadow: 2px 2px #888888;
 	outline: none;
 }
-.btn-submit {
-	float: right;
-}
 .btn-answer {
 		width: auto	;
 		display: block;
 		margin-left: 20px;
 }
-.btn-answer:active {
+.btn:active {
 	box-shadow: 0 0;
 	position: relative;
 	left: 2px;
 	top: 2px;
 }
-.btn-answer:focus {
+.btn:focus {
 	background-color: 	red;
 	color: rgb(0,0,0);
 	box-shadow: 0 0;
 	position: relative;
 	left: 2px;
 	top: 2px;
-}
-.answer-list {
-	height: 40px;
-	width: 500px;
 }
