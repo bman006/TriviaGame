@@ -1,8 +1,8 @@
 main {
-	margin: 20px;
-	padding: 20px;
-	height: 600px;
-	width: 1000px;
+	margin: 0px;
+	padding: 40px;
+	height: 100%;
+	width: 100%;
 	background-color: #d6d6b1;
 }
 
@@ -54,6 +54,7 @@ ol li {
 		margin-left: 20px;
 }
 .btn:active {
+	background-color: 	red;
 	box-shadow: 0 0;
 	position: relative;
 	left: 2px;
@@ -66,4 +67,13 @@ ol li {
 	position: relative;
 	left: 2px;
 	top: 2px;
+}
+.btn-correct {
+	background-color: green;
+}
+.btn-incorrect {
+	background-color: red;
+}
+.btn-not-selected {
+	background-color: grey;
 }

@@ -26,30 +26,40 @@ var TriviaGame = {
 			wrongAnswer: ['wrong 1', 'wrong 2',	'wrong 3']
 		}
 	],
-	timePerQuestion: 	10000, 		//Units in seconds, cannot exceed 99
+	timePerQuestion: 	10000, 		//How long to give user to answer question. Units in seconds
+	timeToReview: 		5,			//How long to wait after answering question before loading next one. Units in seconds
+	numAnswers: 		4,			//How many possible answers are there for every question
 	questionCounter: 	0,			//Counter for which question is current
 	answerIndexCounter: 0,			//Counter for master answer index attribute
 	correctAnswers: 	0,			//Tally for total questions answered correctly
 	incorrectAnswers: 	0,			//Tally for total questions answered incorrectly
+	intervalId: 		0,			//Placeholder key so updateTimerDisplay() interval can be cleared globally
 	timeOuts: 			0, 			//Tally for total questions not answered before time out
 	timedOut: 			false,		//For use when timer runs out in resolveQuestion function
+	screenFreeze: 		false,		//When true, applicable setTimeout functions will halt progress
+
+	stopAnyInterval: function() {
+		clearInterval(this.intervalId);
+	},
 
 	initialize: function() {
 		this.timedOut = false;
 		this.nextQuestion(this.questions, this.questionCounter);
-		this.runTimer();
+		// this.scrollToTop();
+		window.scrollTo(0,0);
+		var timerType = 'question';
+		this.runTimer(timerType);
 	},
 
 	nextQuestion: function(questions, questionCounter) {
-		var numAnswers = questions[questionCounter].wrongAnswer.length + 1;
-		this.createQuestionBox(numAnswers);
+		this.createQuestionBox(this.numAnswers);
 		//Insert answer options
-		var correctAnswerSlot = Math.floor(Math.random() * numAnswers);
+		var correctAnswerSlot = Math.floor(Math.random() * this.numAnswers);
 
 		$('ol[question-number='+questionCounter+']').children().children().eq(-1*correctAnswerSlot).text(questions[questionCounter].correctAnswer);
 
 		var j = 0;
-		for (var i=0; i < numAnswers; i++) {
+		for (var i=0; i < this.numAnswers; i++) {
 			if($('ol[question-number='+questionCounter+']').children('li').children('button').eq(i).text() === "") {
 				$('ol[question-number='+questionCounter+']').children('li').children('button').eq(i).text(questions[questionCounter].wrongAnswer[j]);
 				j++;
@@ -57,7 +67,7 @@ var TriviaGame = {
 		}
 	},
 
-	createQuestionBox: function(numAnswers) {
+	createQuestionBox: function() {
 		//Create element structure
 		var newQuestionBox 			= $('<div>').addClass('question-box');
 		var questionSlot 			= $('<div>').addClass('question-prompt').text(this.questions[this.questionCounter].question);
@@ -68,7 +78,7 @@ var TriviaGame = {
 
 		//Create attributes to reference element based on which button is selected by user
 		var AnswerListItems = '';
-		for (i = 0; i < numAnswers; i++) {
+		for (i = 0; i < this.numAnswers; i++) {
 			AnswerListItems += '<li><button class="btn btn-answer" answer-index='+this.answerIndexCounter+' active-answer="yes" current-selection="no"></button></li>';
 			this.answerIndexCounter++;
 		}
@@ -94,46 +104,137 @@ var TriviaGame = {
 		// });
 	},
 
-	runTimer: function() {
+	runTimer: function(timerType) {
 		var obj = this;
 		var timerDisplay = $('div.time-display[question-number='+this.questionCounter+']');
-		var timeLeft = this.timePerQuestion;
-		var intervalId = setInterval(function(){
-			if (timeLeft >= 0) {
-				timerDisplay.html('Seconds left: <br>' + timeLeft);
-				timeLeft--;
+		if (timerType === 'question') {
+			var timeLeft = this.timePerQuestion;
+		}
+		else if (timerType === 'review') {
+			var timeLeft = this.timeToReview;
+		}
+		this.updateTimerDisplay(timeLeft, timerDisplay, timerType);
+	},
+
+
+	updateTimerDisplay: function(timeLeft, timerDisplay, timerType) {
+		var obj = this;
+
+		//Interval for answering a question
+		if (timerType === 'question') {
+			obj.stopAnyInterval();
+			obj.intervalId = setInterval(function(){
+								if (timeLeft >= 0) {
+									timerDisplay.html('Seconds left: <br>' + timeLeft);
+									timeLeft--;
+								}
+								else {
+									obj.timedOut = true;
+									obj.resolveQuestion();
+								}
+							}, 1000);
+		}
+		//Interval for waiting until the next question is loaded
+		else if (timerType === 'review') {
+			obj.stopAnyInterval();
+			obj.intervalId = setInterval(function(){
+				if (timeLeft >= 0) {
+					timerDisplay.html('Next question in: <br>' + timeLeft);
+					timeLeft--;
+				}
+				else {
+					obj.stopAnyInterval();
+					obj.questionCounter++;
+					obj.initialize();
+				}
+			}, 1000);
+		}
+	},
+
+	//Scroll to top of screen for next question
+	scrollToTop: function() {
+		var obj = this;
+		obj.stopAnyInterval();
+		obj.intervalId = setInterval(function(){
+			if (window.scrollY > 5) {
+				window.scrollBy(0,-5);
 			}
 			else {
-				clearInterval(intervalId);
-				obj.timedOut = true;
-				obj.resolveQuestion();
+				window.scrollTo(0,0);
+				obj.stopAnyInterval();
 			}
-		}, 1000);
+		}, 10);
 	},
 
 	//This function handles logic for checking answer correctness based on either user submission or timeout conditions
 	resolveQuestion: function() {
+		var obj = this;
 		//stop timer
+		obj.stopAnyInterval();
+		
+		//Store container for this set of answers
+		var currentAnswers = $('ol[question-number='+ obj.questionCounter +']');
+		var currentQuestion = obj.questions[obj.questionCounter];
+		
+		//disable buttons
+		$('.btn-answer').prop('disabled', true);
 
+		//Check answer condition
+		if(obj.timedOut === false) {
+			//get answer
+			var answer = currentAnswers.find('button[current-selection=yes]').text();
 
-		//get answer
+			//If answer is correct
+			if(answer === currentQuestion.correctAnswer) {
+				currentQuestion.result = 'Correct';
+				obj.correctAnswers++;
+			}
+			//If answer is incorrect
+			else {
+				currentQuestion.result = 'Incorrect';
+				obj.incorrectAnswers++;
+			}
+		}
+		//If no answer before time out
+		else {
+			currentQuestion.result = 'Time out...';
+			obj.timeOuts++;	
+		}
+		
+		//Reformat answer buttons based on answer result
+		//get the number of which attribute number to start with	
+		var startingAnswer = obj.questionCounter * obj.numAnswers;			
+		for (i = 0; i < obj.numAnswers; i++) {
+			//call the answer to be formatted in this loop
+			var buttonToFormat = currentAnswers.find('button[answer-index='+ startingAnswer +']')
+			//Was this button selected and incorrect?
+			if (buttonToFormat.text() === answer && currentQuestion.result === 'Incorrect') {
+				buttonToFormat.addClass('btn-incorrect');
+			}
+			//Is this button the correct answer?
+			else if (buttonToFormat.text() === currentQuestion.correctAnswer) {
+				buttonToFormat.addClass('btn-correct');
+			}
+			else {	
+				buttonToFormat.addClass('btn-not-selected');
+			}
+			startingAnswer++;
+		}
 
-		//check if answer is correct
-
-		//update tallys for correct/incorrect answers
-
-		this.questionCounter++;
-		this.initialize();
-	},
-	answerCorrectly: function(){
-		correctAnswers++;
-	},
-	answerIncorrectly: function(){
-		incorrectAnswers++;
-	},
-	answerTimeOut:  function(){
-		this.questions[this.questionCounter].result = 'time out';
-		this.timeOuts++;
+		//Update timer to show how long until the next questions
+		var timerType = 'review';
+		obj.screenFreeze = true;
+		obj.runTimer(timerType);
+		//Check if there are any questions left to ask
+		
+		// setTimeout(function() {
+		// 	obj.scrollToTop();
+		// 	obj.questionCounter++;
+		// 	obj.initialize();
+		// 	console.log('this is happening too early')
+		// }, (obj.timeToReview + 1) * 1000);
+			//Reinitialize the game
+			//or finish the game
 	},
 }
 
