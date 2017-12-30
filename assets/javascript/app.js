@@ -146,7 +146,7 @@ var TriviaGame = {
 			}
 		}, 1000);
 	},
-	
+
 	//Scroll to top of screen for next question
 	scrollToTop: function() {
 		var obj = this;
@@ -222,13 +222,6 @@ var TriviaGame = {
 		obj.screenFreeze = true;
 		obj.runTimer(timerType);
 		//Check if there are any questions left to ask
-		
-		// setTimeout(function() {
-		// 	obj.scrollToTop();
-		// 	obj.questionCounter++;
-		// 	obj.initialize();
-		// 	console.log('this is happening too early')
-		// }, (obj.timeToReview + 1) * 1000);
 			//Reinitialize the game
 			//or finish the game
 	},
