@@ -51,22 +51,7 @@ var TriviaGame = {
 		this.runTimer(timerType);
 	},
 
-	nextQuestion: function(questions, questionCounter) {
-		this.createQuestionBox(this.numAnswers);
-		//Insert answer options
-		var correctAnswerSlot = Math.floor(Math.random() * this.numAnswers);
-
-		$('ol[question-number='+questionCounter+']').children().children().eq(-1*correctAnswerSlot).text(questions[questionCounter].correctAnswer);
-
-		var j = 0;
-		for (var i=0; i < this.numAnswers; i++) {
-			if($('ol[question-number='+questionCounter+']').children('li').children('button').eq(i).text() === "") {
-				$('ol[question-number='+questionCounter+']').children('li').children('button').eq(i).text(questions[questionCounter].wrongAnswer[j]);
-				j++;
-			}
-		}
-	},
-
+	//Generate HTML for container with question, answers, and timer
 	createQuestionBox: function() {
 		//Create element structure
 		var newQuestionBox 			= $('<div>').addClass('question-box');
@@ -104,53 +89,64 @@ var TriviaGame = {
 		// });
 	},
 
+	//Insert answer text into buttons after generating question container
+	nextQuestion: function(questions, questionCounter) {
+		this.createQuestionBox(this.numAnswers);
+		//Insert answer options
+		var correctAnswerSlot = Math.floor(Math.random() * this.numAnswers);
+
+		$('ol[question-number='+questionCounter+']').children().children().eq(-1*correctAnswerSlot).text(questions[questionCounter].correctAnswer);
+
+		var j = 0;
+		for (var i=0; i < this.numAnswers; i++) {
+			if($('ol[question-number='+questionCounter+']').children('li').children('button').eq(i).text() === "") {
+				$('ol[question-number='+questionCounter+']').children('li').children('button').eq(i).text(questions[questionCounter].wrongAnswer[j]);
+				j++;
+			}
+		}
+	},
+
+	//Set up the timer based on if user is in the question or review stage, and which question is current
 	runTimer: function(timerType) {
 		var obj = this;
 		var timerDisplay = $('div.time-display[question-number='+this.questionCounter+']');
+		var timerText;
 		if (timerType === 'question') {
 			var timeLeft = this.timePerQuestion;
+			timerText = 'Seconds left: <br>';
 		}
 		else if (timerType === 'review') {
 			var timeLeft = this.timeToReview;
+			timerText = 'Next question in: <br>';
 		}
-		this.updateTimerDisplay(timeLeft, timerDisplay, timerType);
+		this.updateTimerDisplay(timerType, timeLeft, timerDisplay, timerText);
 	},
 
-
-	updateTimerDisplay: function(timeLeft, timerDisplay, timerType) {
+	//
+	updateTimerDisplay: function(timerType, timeLeft, timerDisplay, timerText) {
 		var obj = this;
 
 		//Interval for answering a question
-		if (timerType === 'question') {
-			obj.stopAnyInterval();
-			obj.intervalId = setInterval(function(){
-								if (timeLeft >= 0) {
-									timerDisplay.html('Seconds left: <br>' + timeLeft);
-									timeLeft--;
-								}
-								else {
-									obj.timedOut = true;
-									obj.resolveQuestion();
-								}
-							}, 1000);
-		}
-		//Interval for waiting until the next question is loaded
-		else if (timerType === 'review') {
-			obj.stopAnyInterval();
-			obj.intervalId = setInterval(function(){
-				if (timeLeft >= 0) {
-					timerDisplay.html('Next question in: <br>' + timeLeft);
-					timeLeft--;
+		obj.stopAnyInterval();
+		obj.intervalId = setInterval(function(){
+			if (timeLeft >= 0) {
+				timerDisplay.html(timerText + timeLeft);
+				timeLeft--;
+			}
+			else {
+				if (timerType === 'question') {
+					obj.timedOut = true;
+					obj.resolveQuestion();
 				}
-				else {
+				else if (timerType === 'review') {
 					obj.stopAnyInterval();
 					obj.questionCounter++;
 					obj.initialize();
 				}
-			}, 1000);
-		}
+			}
+		}, 1000);
 	},
-
+	
 	//Scroll to top of screen for next question
 	scrollToTop: function() {
 		var obj = this;
