@@ -183,12 +183,17 @@ var TriviaGame = {
 		//Reformat answer buttons based on answer result
 		obj.reformatButtons(obj, currentQuestion, currentAnswers, answer);
 
-		//Update timer to show how long until the next questions
-		var timerType = 'review';
-		obj.runTimer(obj, timerType);
 		//Check if there are any questions left to ask
+		if ((obj.questionCounter + 1) < obj.questions.length) {
 			//Reinitialize the game
+			//Update timer to show how long until the next questions
+			var timerType = 'review';
+			obj.runTimer(obj, timerType);
+		}
 			//or finish the game
+		else {
+			obj.noMoreQuestions(obj);
+		}
 	},
 
 	//Reformat buttons styles depending on correct, incorrect, time out conditions
@@ -215,7 +220,11 @@ var TriviaGame = {
 
 	//When there are no more questions.....
 	noMoreQuestions: function(obj) {
+		//Create game summary box
 
+		//Calculate results
+
+		//Display results
 	},
 
 //I haven't been able to get to the bottom of why this doesn't work when I call it in the initialize function
