@@ -1,4 +1,5 @@
 main {
+	box-sizing: border-box;
 	margin: 0px;
 	padding: 40px;
 	height: 100%;
@@ -16,11 +17,13 @@ ol li {
 	box-sizing: border-box;
 	outline: 1px dashed black;
 }
-.question-box {
+.question-box, .summary-box {
 	margin: 20px 0;
 	padding: 20px;
-	height: 280px;
 	width: 650px;
+}
+.question-box {
+	height: 280px;
 	outline: 1px solid rgb(0,0,0);
 }
 .question-prompt {
@@ -76,4 +79,35 @@ ol li {
 }
 .btn-not-selected {
 	background-color: grey;
+}
+.btn-restart {
+	float: right;
+	height: 50px;
+	margin: 0 30px 0 0;
+}
+.summary-box {
+	background-color: purple;
+}
+.summary-correct, .summary-incorrect, .summary-timeout, .summary-score {
+	display: inline-block;
+	height: 50px;
+	text-align: center;
+	line-height: 22px;
+	}
+.summary-correct, .summary-incorrect, .summary-timeout {
+	width: 90px;
+}
+.summary-correct {
+	background-color: green;
+}
+.summary-incorrect {
+	background-color: red;
+}
+.summary-timeout {
+	background-color: yellow;
+}
+.summary-score {
+	width: 110px;
+	margin: 0 0 0 20px;
+	background-color: magenta;
 }

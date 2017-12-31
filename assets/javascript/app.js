@@ -26,16 +26,20 @@ var TriviaGame = {
 			wrongAnswer: ['wrong 1', 'wrong 2',	'wrong 3']
 		}
 	],
-	timePerQuestion: 	10000, 		//How long to give user to answer question. Units in seconds
-	timeToReview: 		5,			//How long to wait after answering question before loading next one. Units in seconds
-	numAnswers: 		4,			//How many possible answers are there for every question
-	questionCounter: 	0,			//Counter for which question is current
-	answerIndexCounter: 0,			//Counter for master answer index attribute
-	correctAnswers: 	0,			//Tally for total questions answered correctly
-	incorrectAnswers: 	0,			//Tally for total questions answered incorrectly
-	intervalId: 		0,			//Placeholder key so updateTimerDisplay() interval can be cleared globally
-	timeOuts: 			0, 			//Tally for total questions not answered before time out
-	timedOut: 			false,		//For use when timer runs out in resolveQuestion function
+	timePerQuestion: 				10, 		//How long to give user to answer question. Units in seconds
+	timeToReview: 					1,			//How long to wait after answering question before loading next one. Units in seconds
+	numAnswers: 					4,			//How many possible answers are there for every question
+	questionCounter: 				0,			//Counter for which question is current
+	cumulativeQuestionCounter:		0,			//Cumulative counter for which question is current
+	answerIndexCounter: 			0,			//Counter for master answer index attribute
+	correctAnswers: 				0,			//Tally for total questions answered correctly
+	incorrectAnswers: 				0,			//Tally for total questions answered incorrectly
+	intervalId: 					0,			//Placeholder key so updateTimerDisplay() interval can be cleared globally
+	timeOuts: 						0, 			//Tally for total questions not answered before time out
+	timedOut: 						false,		//For use when timer runs out in resolveQuestion function
+	cumulativeCorrectAnswers: 		0,			//Correct answers across all games
+	cumulativeIncorrectAnswers: 	0,			//Incorrect answers across all games
+	cumulativeTimeouts: 			0,			//Timeouts across all games
 
 	initialize: function() {
 		var obj = this;
@@ -81,7 +85,7 @@ var TriviaGame = {
 		//Add event handlers for when selecting answers
 		$('.btn-answer').click(function() {
 			$(this).attr('current-selection', 'yes');
-			TriviaGame.resolveQuestion(obj);
+			TriviaGame.resolveQuestion();
 		});
 		obj.nextQuestion(obj);
 	},
@@ -94,7 +98,7 @@ var TriviaGame = {
 		//Generate number to randomly select which button has the correct answer
 		var correctAnswerSlot = Math.floor(Math.random() * obj.numAnswers);
 		//Insert the correct answer text into the HTML
-		$('ol[question-number='+questionCounter+']').children().children().eq(-1*correctAnswerSlot).text(questions[questionCounter].correctAnswer);
+		$('ol[question-number='+questionCounter+']').children().children().eq(correctAnswerSlot).text(questions[questionCounter].correctAnswer);
 
 		//Load the incorrect answers into the remaining buttons
 		var j = 0;
@@ -147,7 +151,8 @@ var TriviaGame = {
 
 
 	//This function handles logic for checking answer correctness based on either user submission or timeout conditions
-	resolveQuestion: function(obj) {
+	resolveQuestion: function() {
+		var obj = this;
 		//stop timer
 		obj.stopAnyInterval();
 		
@@ -221,10 +226,73 @@ var TriviaGame = {
 	//When there are no more questions.....
 	noMoreQuestions: function(obj) {
 		//Create game summary box
+			//# of correct answers
+			//# of incorrect answers
+			//# of time outs
+			//restart game button
+
+		//Create elements
+		var summaryBuildBox	 				= $('<div>').addClass('summary-box');
+		var summaryBuildCorrect 			= $('<div>').addClass('summary-correct');
+		var summaryBuildIncorrect 			= $('<div>').addClass('summary-incorrect');
+		var summaryBuildTimeout 			= $('<div>').addClass('summary-timeout');
+		var summaryBuildScore				= $('<div>').addClass('summary-score');
+		var summaryBuildCumulativeScore		= $('<div>').addClass('summary-score');
+		var summaryBuildRestart				= $('<button>').addClass('btn btn-restart');
+
+		//Update cumulative tallys
+		obj.cumulativeCorrectAnswers 		+= obj.correctAnswers;
+		obj.cumulativeIncorrectAnswers		+= obj.incorrectAnswers;
+		obj.cumulativeTimeouts				+= obj.timeOuts;
+
+		//Calculate score %'s'
+		var score 		= ((obj.correctAnswers / (obj.correctAnswers + obj.incorrectAnswers + obj.timeOuts)) * 100).toFixed(0);
+		var totalScore 	= ((obj.cumulativeCorrectAnswers / (obj.cumulativeCorrectAnswers + obj.cumulativeIncorrectAnswers + obj.cumulativeTimeouts)) * 100).toFixed(0);
+
+		//Fill in text
+		summaryBuildCorrect 				.html('Correct:<br>' + obj.correctAnswers);
+		summaryBuildIncorrect 				.html('Incorrect:<br>' + obj.incorrectAnswers);
+		summaryBuildTimeout 				.html('Timeouts:<br>' + obj.timeOuts);
+		summaryBuildScore 					.html('Score:<br>' + score + '%');
+		summaryBuildCumulativeScore			.html('Total Score:<br>' + totalScore + '%');
+		summaryBuildRestart 				.html('Play Again?');
+
+		//Put everything together
+		summaryBuildBox
+			.append(summaryBuildCorrect)
+			.append(summaryBuildIncorrect)
+			.append(summaryBuildTimeout)
+			.append(summaryBuildScore)
+			.append(summaryBuildCumulativeScore)
+			.append(summaryBuildRestart)
+
+		$('main').prepend(summaryBuildBox);
+
+		//Add event handlers for when selecting answers
+		$('.btn-restart').click(function() {
+			obj.restart(obj);
+		});
 
 		//Calculate results
 
 		//Display results
+	},
+
+	//How to restart the game if the user selects to
+	restart: function(obj) {
+
+
+		//Clear "per game" tallys 
+		obj.questionCounter 		= 0;
+		obj.correctAnswers 			= 0;
+		obj.incorrectAnswers 		= 0;
+		obj.timeOuts 				= 0;
+		obj.answerIndexCounter		= 0;
+
+		//Remove all html elements that were created in this game
+		$('main').html('');
+
+		obj.initialize();
 	},
 
 //I haven't been able to get to the bottom of why this doesn't work when I call it in the initialize function
