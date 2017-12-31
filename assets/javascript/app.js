@@ -1,5 +1,4 @@
-//https://opentdb.com/
-//https://opentdb.com/api.php?amount=10&type=multiple
+
 
 //Object array for all questions
 //When user plays game, object will have additional keys added to track information
@@ -9,28 +8,11 @@
 //User can select difficulty and category on start screen
 var TriviaGame = {
 	//Store question and answer information
-	questions: [
-		{
-			question: 'Who was given the title "Full Metal" in the anime series "Full Metal Alchemist"?',
-			correctAnswer: "Edward Elric", 
-			wrongAnswer: ["Alphonse Elric", "Van Hohenheim", "Izumi Curtis"]
-		},
-		{
-			question: "second question",
-			correctAnswer: 'correct', 
-			wrongAnswer: ['wrong 1', 'wrong 2',	'wrong 3']
-		},
-		{
-			question: "third question",
-			correctAnswer: 'correct', 
-			wrongAnswer: ['wrong 1', 'wrong 2',	'wrong 3']
-		}
-	],
-	timePerQuestion: 				10, 		//How long to give user to answer question. Units in seconds
-	timeToReview: 					1,			//How long to wait after answering question before loading next one. Units in seconds
+	questions: 						[],			//Array for storing question prompt and answers
+	timePerQuestion: 				20, 		//How long to give user to answer question. Units in seconds
+	timeToReview: 					5,			//How long to wait after answering question before loading next one. Units in seconds
 	numAnswers: 					4,			//How many possible answers are there for every question
 	questionCounter: 				0,			//Counter for which question is current
-	cumulativeQuestionCounter:		0,			//Cumulative counter for which question is current
 	answerIndexCounter: 			0,			//Counter for master answer index attribute
 	correctAnswers: 				0,			//Tally for total questions answered correctly
 	incorrectAnswers: 				0,			//Tally for total questions answered incorrectly
@@ -40,20 +22,55 @@ var TriviaGame = {
 	cumulativeCorrectAnswers: 		0,			//Correct answers across all games
 	cumulativeIncorrectAnswers: 	0,			//Incorrect answers across all games
 	cumulativeTimeouts: 			0,			//Timeouts across all games
+	newGame: 						true,
 
 	initialize: function() {
 		var obj = this;
 		obj.timedOut = false;
-		obj.createQuestionBox(obj);
-		// this.scrollToTop();
-		window.scrollTo(0,0);
-		var timerType = 'question';
-		obj.runTimer(obj, timerType);
+		if (obj.newGame === true) {
+			obj.newGame = false;
+			obj.getQuestions(obj);
+		}
+		else {
+			obj.createQuestionBox(obj);
+			window.scrollTo(0,0);
+			var timerType = 'question';
+			obj.runTimer(obj, timerType);
+		}
 	},
 
-	//Clear whatever interval is currently running
-	stopAnyInterval: function() {
-		clearInterval(this.intervalId);
+	//Use AJAX to get the questions and answers from an API
+	getQuestions: function(obj) {
+		//Clear current questions
+		obj.questions = [];
+
+		//create API url
+		var numberOfQuestions = '5';
+		var queryurl = 'https://opentdb.com/api.php?amount=' + numberOfQuestions + '&type=multiple';
+
+		//Get info
+		$.ajax({url: queryurl, method: 'get'})
+			//Store question information
+			.done(function(response){
+				console.log(response);
+				var results = response.results;
+				var wrongAnswerTemp = [];
+
+				for (var i = 0; i < results.length; i++) {
+					for (var j = 0; j < results[i].incorrect_answers.length; j++) {
+						wrongAnswerTemp[j] = obj.textDecoder(results[i].incorrect_answers[j]);
+					}
+					obj.questions[i] = {
+						question: 		obj.textDecoder(results[i].question),
+						correctAnswer: 	obj.textDecoder(results[i].correct_answer),
+						wrongAnswer: 	wrongAnswerTemp,
+					};
+				}
+				obj.createQuestionBox(obj);
+				window.scrollTo(0,0);
+				var timerType = 'question';
+				obj.runTimer(obj, timerType);
+			});
 	},
 
 	//Generate HTML for container with question, answers, and timer
@@ -125,7 +142,7 @@ var TriviaGame = {
 		obj.updateTimerDisplay(obj, timerType, timeLeft, timerDisplay, timerText);
 	},
 
-	//
+	//Update the user display per the interval timer now running
 	updateTimerDisplay: function(obj, timerType, timeLeft, timerDisplay, timerText) {
 		//Interval for answering a question
 		obj.stopAnyInterval();
@@ -147,8 +164,6 @@ var TriviaGame = {
 			}
 		}, 1000);
 	},
-
-
 
 	//This function handles logic for checking answer correctness based on either user submission or timeout conditions
 	resolveQuestion: function() {
@@ -225,13 +240,7 @@ var TriviaGame = {
 
 	//When there are no more questions.....
 	noMoreQuestions: function(obj) {
-		//Create game summary box
-			//# of correct answers
-			//# of incorrect answers
-			//# of time outs
-			//restart game button
-
-		//Create elements
+		//Create elements for game summary box
 		var summaryBuildBox	 				= $('<div>').addClass('summary-box');
 		var summaryBuildCorrect 			= $('<div>').addClass('summary-correct');
 		var summaryBuildIncorrect 			= $('<div>').addClass('summary-incorrect');
@@ -245,7 +254,7 @@ var TriviaGame = {
 		obj.cumulativeIncorrectAnswers		+= obj.incorrectAnswers;
 		obj.cumulativeTimeouts				+= obj.timeOuts;
 
-		//Calculate score %'s'
+		//Calculate score %'s
 		var score 		= ((obj.correctAnswers / (obj.correctAnswers + obj.incorrectAnswers + obj.timeOuts)) * 100).toFixed(0);
 		var totalScore 	= ((obj.cumulativeCorrectAnswers / (obj.cumulativeCorrectAnswers + obj.cumulativeIncorrectAnswers + obj.cumulativeTimeouts)) * 100).toFixed(0);
 
@@ -272,22 +281,18 @@ var TriviaGame = {
 		$('.btn-restart').click(function() {
 			obj.restart(obj);
 		});
-
-		//Calculate results
-
-		//Display results
 	},
 
 	//How to restart the game if the user selects to
 	restart: function(obj) {
 
-
-		//Clear "per game" tallys 
+		//Reset variables for new game 
 		obj.questionCounter 		= 0;
 		obj.correctAnswers 			= 0;
 		obj.incorrectAnswers 		= 0;
 		obj.timeOuts 				= 0;
 		obj.answerIndexCounter		= 0;
+		obj.newGame 				= true;
 
 		//Remove all html elements that were created in this game
 		$('main').html('');
@@ -295,21 +300,17 @@ var TriviaGame = {
 		obj.initialize();
 	},
 
-//I haven't been able to get to the bottom of why this doesn't work when I call it in the initialize function
-	//Scroll to top of screen for next question
-	// scrollToTop: function() {
-	// 	var obj = this;
-	// 	obj.stopAnyInterval();
-	// 	obj.intervalId = setInterval(function(){
-	// 		if (window.scrollY > 5) {
-	// 			window.scrollBy(0,-5);
-	// 		}
-	// 		else {
-	// 			window.scrollTo(0,0);
-	// 			obj.stopAnyInterval();
-	// 		}
-	// 	}, 10);
-	// },
+	//Clear whatever interval is currently running
+	stopAnyInterval: function() {
+		clearInterval(this.intervalId);
+	},
+
+	//Decode HTML text into normal text that is received from the API
+	textDecoder: function(text) {
+		var tempBin = $('<div>');
+		tempBin.html(text);
+		return tempBin.text();
+	},
 }
 
 TriviaGame.initialize();

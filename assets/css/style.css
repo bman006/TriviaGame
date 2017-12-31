@@ -1,3 +1,10 @@
+header {
+	padding: 30px;
+	background-color: chocolate;
+	color: yellow;
+	font-family: "papyrus";
+	font-size: 3em;
+}
 main {
 	box-sizing: border-box;
 	margin: 0px;
@@ -23,18 +30,18 @@ ol li {
 	width: 650px;
 }
 .question-box {
-	height: 280px;
+	height: 310px;
 	outline: 1px solid rgb(0,0,0);
 }
 .question-prompt {
-	height: 40px;
+	height: 60px;
 	width: 500px;
 }
 .time-display {
-	position: relative;
-	top:50%;
 	float: right;
 	height: 40px;
+	width: 115px;
+	padding-top: 3px;
 	text-align: center;
 }
 .answer-list {
@@ -99,6 +106,7 @@ ol li {
 }
 .summary-correct {
 	background-color: green;
+	color: white;
 }
 .summary-incorrect {
 	background-color: red;
