@@ -54,9 +54,9 @@ var TriviaGame = {
 			.done(function(response){
 				console.log(response);
 				var results = response.results;
-				var wrongAnswerTemp = [];
 
 				for (var i = 0; i < results.length; i++) {
+				var wrongAnswerTemp = [];
 					for (var j = 0; j < results[i].incorrect_answers.length; j++) {
 						wrongAnswerTemp[j] = obj.textDecoder(results[i].incorrect_answers[j]);
 					}
